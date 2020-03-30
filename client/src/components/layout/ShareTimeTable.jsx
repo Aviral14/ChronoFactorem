@@ -8,7 +8,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import axios from 'axios';
 import PropTypes from "prop-types";
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import { useGetData } from "use-axios-react";
 import "../../styles/HelForm.css";
 import { editTT } from "../../actions/UpdateTimeTable";
@@ -39,36 +39,49 @@ const ShareTimeTable = () => {
     TTs: [],
   });
 
-  const { branch, year,TTs } = formData;
+  const { branch, year, TTs } = formData;
 
   const submitToMongo = async (branch, year) => {
     //const studentData = JSON.stringify({ branch, year });
-    const event = [branch, year];
+
     let TTData = [];
     try {
-      await axios
-        .get("/api/sharett/",event)
-        .then(function (response) {
-          if (response.status !== 201) {
+      let br = [];
+      branch.forEach(item => { br.push(item["value"]); });
+      let res = await axios
+        .get("/api/share/sharett", {
+          params: {
+            'branch': br,
+            'year': year
+          }
+        })
+        .then((response) => {
+          console.log("Here");
+          if (response.status !== 200) {
+            
             throw new Error("Could not submit query.");
           }
           else {
-            let t = JSON.parse(response);
-            TTData = JSON.parse(JSON.stringify(t)).default;
+
+            TTData = JSON.parse(JSON.stringify(response["data"]));
+            console.log(TTData);
+            setFormData({TTs: TTData });
           }
         });
     }
     catch (err) {
-
+      console.log(err);
     }
-    setFormData({...formData, TTs: TTData });
+
   }
 
   const handleBranchChange = newBranch => {
+    console.log(newBranch);
     setFormData({
       ...formData,
       branch: newBranch
     });
+    //console.log(formData.branch,branch);
   };
   const handleYearChange = e => {
     if (e.target.checked) {
@@ -82,9 +95,10 @@ const ShareTimeTable = () => {
 
   const onSubmit = async e => {
     e.preventDefault();
+    console.log(year);
     if (!branch || branch.length === 0) {
       window.alert("Please enter your branch");
-    } else if (year === "") {
+    } else if (year === "" || year === NaN) {
       window.alert("Please enter your year");
     } else {
 
@@ -128,8 +142,8 @@ const ShareTimeTable = () => {
   const isValidNewOption = (inputValue, selectValue) =>
     inputValue.length > 0 && selectValue.length < 5;
 
-  const [userInfo, loading] = useGetData("/api/shareTT/");
-
+  const [userInfo, loading] = useGetData("/api/share/shareTT/");
+  //const loading = true;
   let str =
     [<Fragment>
       <p className='title'>
@@ -137,7 +151,7 @@ const ShareTimeTable = () => {
         We would like to know a few things before you continue
         Please Enter your Branch, year and select your Humanities Courses of the previous semester below:
       </p>
-      <form className='form-whole' onSubmit={e => onSubmit(e)}>
+      <form className='form-whole' onSubmit={onSubmit}>
         <div className='container-helform'>
           <Creatable
             components={{ Menu }}
@@ -213,10 +227,11 @@ const ShareTimeTable = () => {
           />
         </div>
       </form>
-          </Fragment>];
-  
-  if (!loading && formData.TTs.length !== 0) {
-    const Disp = (formData.TTs).map(item => {
+    </Fragment>];
+
+  if (!loading && formData["TTs"] !== 0) {
+    console.log(formData['TTs']);
+    const Disp = (formData["TTs"]).map(item => {
       console.log(item.name);
       return (
         <div>
@@ -238,24 +253,25 @@ const ShareTimeTable = () => {
       str.push(Dis);
     }
   }
-  else
-  {
-    str.concat(<h3>No TTs</h3>);
+  else {
+    str.push(<h3>No TTs</h3>);
   }
   console.log(str);
-  
-  return  str ;
+
+  return str;
 
 };
 
-ShareTimeTable.propTypes = {
-  editTT: PropTypes.func.isRequired
-};
 const mapDispatchToProps = dispatch => {
   return {
     editTT: tt => dispatch(editTT(tt))
   };
 };
+
+ShareTimeTable.propTypes = {
+  editTT: PropTypes.func.isRequired
+};
+
 
 
 
