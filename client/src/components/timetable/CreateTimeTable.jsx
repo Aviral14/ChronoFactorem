@@ -90,7 +90,7 @@ class CreateTimeTable extends Component {
           </>
         ) : this.state.view === 4 ? (
           <>
-            {this.CustomButton("Export As PDF", 0)}
+            {this.CustomButton("Export As PNG", 0)}
             <ExportPage />
           </>
         ) : null}
