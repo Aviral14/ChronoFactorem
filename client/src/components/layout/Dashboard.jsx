@@ -12,10 +12,6 @@ const Dashboard = props => {
   });
   const { savedTT } = TTData;
 
-  function edit(tt) {
-    props.editTT(tt);
-  }
-
   function deleteTT(id) {
     try {
       axios.delete(`/api/timetable/delete/${id}`).then(res => {
@@ -70,7 +66,7 @@ const Dashboard = props => {
               <Link
                 to='/create'
                 onClick={() => {
-                  edit(item);
+                  props.editTT(item);
                 }}
               >
                 Edit
