@@ -65,12 +65,13 @@ const ShareTimeTable = () => {
 
             TTData = JSON.parse(JSON.stringify(response["data"]));
             console.log(TTData);
-            setFormData({TTs: TTData });
+            setFormData({...formData,TTs: TTData });
           }
         });
     }
     catch (err) {
       console.log(err);
+      setFormData({...formData});
     }
 
   }
@@ -108,7 +109,7 @@ const ShareTimeTable = () => {
 
     }
     
-    setFormData({...formData, branch: [],year: ""});
+   // setFormData({...formData, branch: [],year: ""});
     
   };
 
@@ -233,11 +234,12 @@ const ShareTimeTable = () => {
       </form>
     </Fragment>];
 
-  if (!loading && formData["TTs"] !== 0) {
+  if (!loading && formData["TTs"].length !== 0) {
     console.log(formData['TTs']);
-    const Disp = (formData["TTs"]).map(item => {
+    let Disp = [];
+    (formData["TTs"]).map(item => {
       console.log(item.name);
-      return (
+      Disp.push(
         <div>
           <p> {item.name}</p>
           <Link
@@ -260,9 +262,9 @@ const ShareTimeTable = () => {
   else {
     str.push(<h3>No TTs</h3>);
   }
-  console.log(str);
+  console.log(<>{str}</>);
 
-  return str[0];
+  return <>{str}</>;
 
 };
 
