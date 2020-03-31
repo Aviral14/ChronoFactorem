@@ -1,14 +1,14 @@
-
-import React, { Fragment, useState, Link } from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Creatable from "react-select";
 import { components } from "react-select";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
-import axios from 'axios';
+import axios from "axios";
 import PropTypes from "prop-types";
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 import { useGetData } from "use-axios-react";
 import "../../styles/HelForm.css";
 import { editTT } from "../../actions/UpdateTimeTable";
@@ -30,51 +30,42 @@ const branches = [
   { value: "PHY", label: "Physics" }
 ];
 
-
 const ShareTimeTable = () => {
-
   const [formData, setFormData] = useState({
     branch: [],
     year: "",
-    TTs: [],
+    TTs: []
   });
 
   const { branch, year, TTs } = formData;
 
-  const submitToMongo = async (branch, year) => {
-    //const studentData = JSON.stringify({ branch, year });
-
+  const submitToMongo = (branch, year) => {
     let TTData = [];
     try {
       let br = [];
-      branch.forEach(item => { br.push(item["value"]); });
-      let res = await axios
+      branch.forEach(item => {
+        br.push(item["value"]);
+      });
+      axios
         .get("/api/share/sharett", {
           params: {
-            'branch': br,
-            'year': year
+            branch: br,
+            year: year
           }
         })
-        .then((response) => {
+        .then(response => {
           console.log("Here");
           if (response.status !== 200) {
-            
             throw new Error("Could not submit query.");
-          }
-          else {
-
+          } else {
             TTData = JSON.parse(JSON.stringify(response["data"]));
-            console.log(TTData);
-            setFormData({...formData,TTs: TTData });
+            setFormData({ ...formData, TTs: TTData });
           }
         });
+    } catch (err) {
+      window.alert(err.message);
     }
-    catch (err) {
-      console.log(err);
-      setFormData({...formData});
-    }
-
-  }
+  };
 
   const handleBranchChange = newBranch => {
     console.log(newBranch);
@@ -82,7 +73,6 @@ const ShareTimeTable = () => {
       ...formData,
       branch: newBranch
     });
-    //console.log(formData.branch,branch);
   };
   const handleYearChange = e => {
     if (e.target.checked) {
@@ -93,9 +83,7 @@ const ShareTimeTable = () => {
     }
   };
 
-
   const onSubmit = async e => {
-    
     e.preventDefault();
     console.log(year);
     if (!branch || branch.length === 0) {
@@ -103,32 +91,9 @@ const ShareTimeTable = () => {
     } else if (year === "" || year === NaN) {
       window.alert("Please enter your year");
     } else {
-
-
       submitToMongo(branch, year);
-
     }
-    
-   // setFormData({...formData, branch: [],year: ""});
-    
   };
-
-
-
-
-
-
-
-  /**
-   * Check to redirect to dashboard once user submits form
-   * Cannot use api route to get submitted --> race condition, condition executes before state is updated
-   * (new user conditions) || (old user conditions)
-   */
-  /*
-   if ((!submitted && user && user.submittedForm) || submitted) {
-    return <Redirect to='/dashboard'></Redirect>;
-  }
-  */
 
   const Menu = props => {
     const optionSelectedLength = props.getValue().length || 0;
@@ -137,10 +102,10 @@ const ShareTimeTable = () => {
         {optionSelectedLength < 2 ? (
           props.children
         ) : (
-            <div className='wide-menu-row'>
-              You cannot select more than 2 branches
-            </div>
-          )}
+          <div className='wide-menu-row'>
+            You cannot select more than 2 branches
+          </div>
+        )}
       </components.Menu>
     );
   };
@@ -148,13 +113,12 @@ const ShareTimeTable = () => {
     inputValue.length > 0 && selectValue.length < 5;
 
   const [userInfo, loading] = useGetData("/api/share/shareTT/");
-  //const loading = true;
-  let str =
-    [<Fragment>
+  return (
+    <>
       <p className='title'>
-        Hi!
-        We would like to know a few things before you continue
-        Please Enter your Branch, year and select your Humanities Courses of the previous semester below:
+        Hi! We would like to know a few things before you continue Please Enter
+        your Branch, year and select your Humanities Courses of the previous
+        semester below:
       </p>
       <form className='form-whole' onSubmit={onSubmit}>
         <div className='container-helform'>
@@ -232,40 +196,29 @@ const ShareTimeTable = () => {
           />
         </div>
       </form>
-    </Fragment>];
-
-  if (!loading && formData["TTs"].length !== 0) {
-    console.log(formData['TTs']);
-    let Disp = [];
-    (formData["TTs"]).map(item => {
-      console.log(item.name);
-      Disp.push(
-        <div>
-          <p> {item.name}</p>
-          <Link
-            to='/create'
-            onClick={() => {
-              editTT(item);
-            }}
-          >
-            <button>
-              View/Edit
-              </button>
-          </Link>
-        </div>
-      );
-    });
-    for (let Dis of Disp) {
-      str.push(Dis);
-    }
-  }
-  else {
-    str.push(<h3>No TTs</h3>);
-  }
-  console.log(<>{str}</>);
-
-  return <>{str}</>;
-
+      {!loading && formData["TTs"].length !== 0 ? (
+        formData["TTs"].map(item => {
+          return (
+            <>
+              <div>
+                <p> {item.name}</p>
+                <Link
+                  to='/create'
+                  onClick={() => {
+                    editTT(item);
+                  }}
+                >
+                  <button>View/Edit</button>
+                </Link>
+              </div>
+            </>
+          );
+        })
+      ) : (
+        <h3>NO TT</h3>
+      )}
+    </>
+  );
 };
 
 const mapDispatchToProps = dispatch => {
@@ -277,8 +230,5 @@ const mapDispatchToProps = dispatch => {
 ShareTimeTable.propTypes = {
   editTT: PropTypes.func.isRequired
 };
-
-
-
 
 export default connect(null, mapDispatchToProps)(ShareTimeTable);
