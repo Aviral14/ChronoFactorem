@@ -94,6 +94,7 @@ const ShareTimeTable = () => {
 
 
   const onSubmit = async e => {
+    
     e.preventDefault();
     console.log(year);
     if (!branch || branch.length === 0) {
@@ -106,6 +107,9 @@ const ShareTimeTable = () => {
       submitToMongo(branch, year);
 
     }
+    
+    setFormData({...formData, branch: [],year: ""});
+    
   };
 
 
@@ -258,7 +262,7 @@ const ShareTimeTable = () => {
   }
   console.log(str);
 
-  return str;
+  return str[0];
 
 };
 
