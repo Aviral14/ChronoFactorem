@@ -223,7 +223,7 @@ const ShareTimeTable = props => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    editTT: tt => dispatch(editTT(tt))
+    editTT: tt => dispatch(editTT(tt, true))
   };
 };
 
