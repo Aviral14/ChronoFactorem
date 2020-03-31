@@ -30,7 +30,7 @@ const branches = [
   { value: "PHY", label: "Physics" }
 ];
 
-const ShareTimeTable = () => {
+const ShareTimeTable = props => {
   const [formData, setFormData] = useState({
     branch: [],
     year: "",
@@ -205,7 +205,7 @@ const ShareTimeTable = () => {
                 <Link
                   to='/create'
                   onClick={() => {
-                    editTT(item);
+                    props.editTT(item);
                   }}
                 >
                   <button>View/Edit</button>
